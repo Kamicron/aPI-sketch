@@ -5,6 +5,7 @@ import Layout from './components/Layout'
 import ComediansPage from './pages/ComediansPage'
 import HomePage from './pages/HomePage'
 import InvitationsPage from './pages/InvitationsPage'
+import LibraryPage from './pages/LibraryPage'
 import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 
@@ -27,6 +28,7 @@ export default function App() {
         }
       >
         <Route index element={<HomePage />} />
+        <Route path="bibliotheque" element={<LibraryPage />} />
         <Route path="humoristes" element={<ComediansPage />} />
         <Route path="invitations" element={<InvitationsPage />} />
       </Route>

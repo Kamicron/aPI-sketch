@@ -2,18 +2,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react'
 import { catalogApi } from '../api/domainApi'
 import type { Comedian, Sketch } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
-
-function formatDuration(seconds: number | null) {
-  if (seconds == null) return ''
-  const h = Math.floor(seconds / 3600)
-  const m = Math.floor((seconds % 3600) / 60)
-  const s = String(seconds % 60).padStart(2, '0')
-  return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${s}` : `${m}:${s}`
-}
-
-function formatDate(iso: string | null) {
-  return iso ? new Date(iso + 'Z').toLocaleDateString('fr-FR') : 'jamais'
-}
+import SketchGrid, { formatDate } from '../components/SketchGrid'
 
 export default function ComediansPage() {
   const { user } = useAuth()
@@ -93,8 +82,6 @@ export default function ComediansPage() {
       await Promise.all([loadComedians(), loadSketches()])
     })
   }
-
-  const nameOf = (id: number) => comedians.find((c) => c.id === id)?.name ?? ''
 
   return (
     <section>
@@ -186,28 +173,7 @@ export default function ComediansPage() {
           </button>
         ))}
       </div>
-      <ul className="sketch-grid">
-        {sketches.map((s) => (
-          <li key={s.id}>
-            <a
-              className="sketch-card"
-              href={`https://www.youtube.com/watch?v=${encodeURIComponent(s.youtube_id)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <div className="thumb">
-                {s.thumbnail_url && <img src={s.thumbnail_url} alt="" loading="lazy" />}
-                <span className="duration">{formatDuration(s.duration_s)}</span>
-              </div>
-              <span className="sketch-title">{s.title}</span>
-              <span className="muted small">
-                {nameOf(s.comedian_id)} · {formatDate(s.published_at)}
-              </span>
-            </a>
-          </li>
-        ))}
-        {sketches.length === 0 && <li className="muted">Aucun sketch pour l'instant.</li>}
-      </ul>
+      <SketchGrid sketches={sketches} empty="Aucun sketch pour l'instant." />
     </section>
   )
 }

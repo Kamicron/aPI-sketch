@@ -90,3 +90,22 @@ class Sketch(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
 
     comedian: Mapped[Comedian] = relationship(back_populates="sketches")
+
+
+class Like(Base):
+    __tablename__ = "likes"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    sketch_id: Mapped[int] = mapped_column(ForeignKey("sketches.id", ondelete="CASCADE"), primary_key=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+
+class Play(Base):
+    """Historique d'écoute : une ligne par (membre, sketch), mise à jour à chaque lecture."""
+
+    __tablename__ = "plays"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    sketch_id: Mapped[int] = mapped_column(ForeignKey("sketches.id", ondelete="CASCADE"), primary_key=True)
+    last_played_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+    play_count: Mapped[int] = mapped_column(Integer, default=1)

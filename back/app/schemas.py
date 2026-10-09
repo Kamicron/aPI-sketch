@@ -85,11 +85,13 @@ class SketchOut(BaseModel):
 
     id: int
     comedian_id: int
+    comedian_name: str = ""
     youtube_id: str
     title: str
     duration_s: int | None
     published_at: datetime
     thumbnail_url: str | None
+    liked: bool = False
 
 
 class SyncOut(BaseModel):

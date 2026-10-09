@@ -39,11 +39,13 @@ export interface Comedian {
 export interface Sketch {
   id: number
   comedian_id: number
+  comedian_name: string
   youtube_id: string
   title: string
   duration_s: number | null
   published_at: string
   thumbnail_url: string | null
+  liked: boolean
 }
 
 export interface SyncResult {

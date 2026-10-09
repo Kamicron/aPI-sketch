@@ -26,6 +26,14 @@ export const catalogApi = {
     api<Comedian>(`/api/comedians/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteComedian: (id: number) => api<void>(`/api/comedians/${id}`, { method: 'DELETE' }),
   sync: (id: number) => api<SyncResult>(`/api/comedians/${id}/sync`, { method: 'POST' }),
-  sketches: (comedianId?: number) =>
-    api<Sketch[]>(`/api/sketches?limit=100${comedianId ? `&comedian_id=${comedianId}` : ''}`),
+  sketches: (comedianId?: number, limit = 100) =>
+    api<Sketch[]>(`/api/sketches?limit=${limit}${comedianId ? `&comedian_id=${comedianId}` : ''}`),
+}
+
+export const libraryApi = {
+  like: (id: number) => api<void>(`/api/sketches/${id}/like`, { method: 'PUT' }),
+  unlike: (id: number) => api<void>(`/api/sketches/${id}/like`, { method: 'DELETE' }),
+  play: (id: number) => api<void>(`/api/sketches/${id}/play`, { method: 'POST' }),
+  likes: () => api<Sketch[]>('/api/me/likes'),
+  history: (limit = 50) => api<Sketch[]>(`/api/me/history?limit=${limit}`),
 }

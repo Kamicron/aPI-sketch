@@ -8,6 +8,7 @@ from app.deps import admin_user, current_user
 from app.models import Comedian, Sketch, User
 from app.schemas import ComedianCreate, ComedianOut, ComedianUpdate, SketchOut, SyncOut
 from app.services import catalog, youtube
+from app.services.library import serialize
 
 # Lecture : tout membre. Gestion des humoristes et synchronisation : admin.
 router = APIRouter(prefix="/api", tags=["catalog"])
@@ -96,7 +97,7 @@ def list_sketches(
     comedian_id: int | None = None,
     limit: int = 50,
     offset: int = 0,
-    _: User = Depends(current_user),
+    user: User = Depends(current_user),
     db: Session = Depends(get_db),
 ):
     query = (
@@ -108,4 +109,4 @@ def list_sketches(
     )
     if comedian_id is not None:
         query = query.where(Sketch.comedian_id == comedian_id)
-    return db.scalars(query).all()
+    return serialize(db, user, db.scalars(query).all())
