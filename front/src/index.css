@@ -270,3 +270,101 @@ button {
     align-items: stretch;
   }
 }
+
+/* Humoristes et sketchs */
+.section-title {
+  margin: 32px 0 8px;
+  font-size: 1.2rem;
+}
+
+.inline-form .narrow {
+  width: 90px;
+  flex: none;
+}
+
+.comedian-row.off {
+  opacity: 0.6;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 16px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+}
+
+.chip.active {
+  background: var(--text);
+  color: var(--accent-text);
+}
+
+.sketch-grid {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  max-width: 1000px;
+}
+
+.sketch-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  padding: 12px;
+  background: var(--surface);
+  border-radius: var(--radius);
+  text-decoration: none;
+}
+
+.sketch-card:hover {
+  background: var(--surface-2);
+}
+
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #000;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.duration {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  font-size: 0.75rem;
+}
+
+.sketch-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (max-width: 720px) {
+  .inline-form .narrow {
+    width: 100%;
+  }
+}

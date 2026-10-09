@@ -4,6 +4,8 @@ server {
     server_name api-sketch-back.pi-cto.top;
 
     client_max_body_size 20M;
+    # Une synchronisation (lecture yt-dlp des nouveautés) peut dépasser les 60 s par défaut.
+    proxy_read_timeout 300s;
 
     gzip on;
     gzip_types application/json;

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './auth/AuthContext'
 import Layout from './components/Layout'
+import ComediansPage from './pages/ComediansPage'
 import HomePage from './pages/HomePage'
 import InvitationsPage from './pages/InvitationsPage'
 import LoginPage from './pages/LoginPage'
@@ -26,6 +27,7 @@ export default function App() {
         }
       >
         <Route index element={<HomePage />} />
+        <Route path="humoristes" element={<ComediansPage />} />
         <Route path="invitations" element={<InvitationsPage />} />
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

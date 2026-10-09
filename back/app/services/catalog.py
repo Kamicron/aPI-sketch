@@ -1,5 +1,6 @@
 """Découverte : lit le flux d'un humoriste, applique le filtre de durée, enregistre les nouveautés."""
 
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 
 from sqlalchemy import select
@@ -22,10 +23,11 @@ def sync_comedian(db: Session, comedian: Comedian) -> SyncResult:
     result = SyncResult()
     entries = youtube.fetch_feed(comedian.youtube_channel_id)
     known = set(db.scalars(select(Sketch.youtube_id).where(Sketch.youtube_id.in_([e.video_id for e in entries]))))
-    for entry in entries:
-        if entry.video_id in known:
-            continue
-        duration = youtube.video_duration(entry.video_id)
+    new_entries = [e for e in entries if e.video_id not in known]
+    # Une lecture yt-dlp dure plusieurs secondes : en parallèle, pour rester sous le délai nginx.
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        durations = list(pool.map(lambda e: youtube.video_duration(e.video_id), new_entries))
+    for entry, duration in zip(new_entries, durations):
         in_range = duration is not None and comedian.min_duration_s <= duration <= comedian.max_duration_s
         db.add(
             Sketch(

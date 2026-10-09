@@ -11,6 +11,7 @@ export default function Layout() {
           <NavLink to="/" end>
             Accueil
           </NavLink>
+          <NavLink to="/humoristes">Humoristes</NavLink>
           <NavLink to="/invitations">Invitations</NavLink>
         </nav>
         <div className="sidenav-footer">
