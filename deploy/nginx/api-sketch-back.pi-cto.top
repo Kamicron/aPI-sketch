@@ -1,8 +1,6 @@
 # API FastAPI (uvicorn sur 127.0.0.1:8091, cf. SERVER_PORT de /etc/apisketch/apisketch.env).
-# Certbot : `sudo certbot --nginx -d api-sketch-back.pi-cto.top` puis reporter ses lignes ici.
+# Les lignes "managed by Certbot" sont reportées du serveur (certificat commun aux deux domaines).
 server {
-    listen 80;
-    listen [::]:80;
     server_name api-sketch-back.pi-cto.top;
 
     client_max_body_size 20M;
@@ -17,4 +15,26 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
     }
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/api-sketch.pi-cto.top/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/api-sketch.pi-cto.top/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+}
+
+server {
+    if ($host = api-sketch-back.pi-cto.top) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    listen [::]:80;
+    server_name api-sketch-back.pi-cto.top;
+    return 404; # managed by Certbot
+
+
 }
