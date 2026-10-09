@@ -9,7 +9,8 @@ from sqlalchemy.orm import Session
 from app.models import Comedian, Sketch, utcnow
 from app.services import youtube
 
-DISCOVERED = "discovered"  # à proposer à l'écoute / à la découverte
+MAX_LISTING = 1000  # plus grand nombre de vidéos d'une chaîne examinées par import d'historique
+DISCOVERED ="discovered"  # à proposer à l'écoute / à la découverte
 FILTERED = "filtered"      # hors filtre de durée : mémorisé pour ne pas le réexaminer
 
 
@@ -17,6 +18,7 @@ FILTERED = "filtered"      # hors filtre de durée : mémorisé pour ne pas le r
 class SyncResult:
     discovered: int = 0
     filtered: int = 0
+    remaining: int = 0  # import d'historique : sketchs retenus restant à importer (relancer)
 
 
 def sync_comedian(db: Session, comedian: Comedian) -> SyncResult:
@@ -46,6 +48,45 @@ def sync_comedian(db: Session, comedian: Comedian) -> SyncResult:
         else:
             result.filtered += 1
     comedian.last_synced_at = utcnow()
+    db.commit()
+    return result
+
+
+def backfill_comedian(db: Session, comedian: Comedian, batch: int = 100) -> SyncResult:
+    """Importe l'historique de la chaîne (le flux RSS ne donne que les ~15 dernières vidéos).
+
+    Le listing donne les durées sans les dates : on écarte d'abord, sans rien charger de plus,
+    ce qui est hors filtre, puis on lit les métadonnées complètes des `batch` plus récents
+    retenus. Relancer l'import continue là où il s'est arrêté (les vidéos connues sont ignorées).
+    """
+    listed = youtube.list_channel_videos(comedian.youtube_channel_id, MAX_LISTING)
+    known = set(db.scalars(select(Sketch.youtube_id).where(Sketch.youtube_id.in_([v.video_id for v in listed]))))
+    unknown = [v for v in listed if v.video_id not in known]
+    candidates = [
+        v for v in unknown
+        if v.duration_s is not None and comedian.min_duration_s <= v.duration_s <= comedian.max_duration_s
+    ]
+    todo = candidates[:batch]
+    with ThreadPoolExecutor(max_workers=5) as pool:
+        details = list(pool.map(lambda v: youtube.video_details(v.video_id), todo))
+    result = SyncResult(filtered=len(unknown) - len(candidates), remaining=len(candidates) - len(todo))
+    for d in details:
+        if d is None or d.duration_s is None or not comedian.min_duration_s <= d.duration_s <= comedian.max_duration_s:
+            result.filtered += 1
+            continue
+        db.add(
+            Sketch(
+                comedian_id=comedian.id,
+                youtube_id=d.video_id,
+                title=d.title[:300],
+                description=(d.description or "")[:5000] or None,
+                duration_s=d.duration_s,
+                published_at=d.published_at,
+                thumbnail_url=d.thumbnail_url,
+                status=DISCOVERED,
+            )
+        )
+        result.discovered += 1
     db.commit()
     return result
 

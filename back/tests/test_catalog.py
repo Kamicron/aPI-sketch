@@ -63,7 +63,7 @@ def test_sync_filters_by_duration_and_is_incremental(client, admin_token, fake_y
     fake_youtube["durations"] = {"short": 45, "good": 600, "long": 7200}  # "live" : durée inconnue
 
     res = client.post(f"/api/comedians/{cid}/sync", headers=auth(admin_token))
-    assert res.json() == {"discovered": 1, "filtered": 3}
+    assert res.json() == {"discovered": 1, "filtered": 3, "remaining": 0}
 
     sketches = client.get("/api/sketches", headers=auth(admin_token)).json()
     assert [s["youtube_id"] for s in sketches] == ["good"]
@@ -73,7 +73,7 @@ def test_sync_filters_by_duration_and_is_incremental(client, admin_token, fake_y
     fake_youtube["feed"].append(entry("fresh", 5))
     fake_youtube["durations"] = {"short": 600, "fresh": 300}
     res = client.post(f"/api/comedians/{cid}/sync", headers=auth(admin_token))
-    assert res.json() == {"discovered": 1, "filtered": 0}
+    assert res.json() == {"discovered": 1, "filtered": 0, "remaining": 0}
     ids = [s["youtube_id"] for s in client.get("/api/sketches", headers=auth(admin_token)).json()]
     assert ids == ["fresh", "good"]  # plus récent d'abord
 

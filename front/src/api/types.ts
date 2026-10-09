@@ -51,4 +51,5 @@ export interface Sketch {
 export interface SyncResult {
   discovered: number
   filtered: number
+  remaining: number
 }

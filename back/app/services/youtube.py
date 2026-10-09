@@ -101,3 +101,66 @@ def video_duration(video_id: str) -> int | None:
         return None
     duration = info.get("duration")
     return int(duration) if duration else None
+
+
+@dataclass(frozen=True)
+class ListedVideo:
+    video_id: str
+    title: str
+    duration_s: int | None
+
+
+@dataclass(frozen=True)
+class VideoDetails:
+    video_id: str
+    title: str
+    description: str | None
+    duration_s: int | None
+    published_at: datetime  # UTC, sans fuseau
+    thumbnail_url: str | None
+
+
+def list_channel_videos(channel_id: str, limit: int) -> list[ListedVideo]:
+    """Les `limit` dernières vidéos de la chaîne, du plus récent au plus ancien, avec leur durée.
+
+    Une seule requête (listing « à plat ») : rapide, mais sans date de publication.
+    """
+    url = f"https://www.youtube.com/channel/{channel_id}/videos"
+    try:
+        with _ydl(extract_flat=True, playlist_items=f"1-{limit}") as ydl:
+            info = ydl.extract_info(url, download=False)
+    except yt_dlp.utils.DownloadError as exc:
+        raise YouTubeError("Liste des vidéos indisponible") from exc
+    videos = []
+    for e in info.get("entries") or []:
+        if e.get("id") and e.get("title"):
+            duration = e.get("duration")
+            videos.append(ListedVideo(e["id"], e["title"], int(duration) if duration else None))
+    return videos
+
+
+def video_details(video_id: str) -> VideoDetails | None:
+    """Métadonnées complètes d'une vidéo (None : direct, privée, indisponible ou sans date)."""
+    try:
+        with _ydl() as ydl:
+            info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
+    except yt_dlp.utils.DownloadError:
+        return None
+    if info.get("is_live") or info.get("live_status") not in (None, "not_live", "was_live"):
+        return None
+    timestamp = info.get("timestamp")
+    if timestamp:
+        published = datetime.fromtimestamp(timestamp, timezone.utc).replace(tzinfo=None)
+    elif info.get("upload_date"):
+        published = datetime.strptime(info["upload_date"], "%Y%m%d")
+    else:
+        return None
+    duration = info.get("duration")
+    return VideoDetails(
+        video_id=video_id,
+        title=info.get("title") or "",
+        description=info.get("description"),
+        duration_s=int(duration) if duration else None,
+        published_at=published,
+        thumbnail_url=info.get("thumbnail"),
+    )

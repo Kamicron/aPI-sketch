@@ -92,6 +92,18 @@ def sync_comedian(comedian_id: int, _: User = Depends(admin_user), db: Session =
     return SyncOut(discovered=result.discovered, filtered=result.filtered)
 
 
+@router.post("/comedians/{comedian_id}/backfill", response_model=SyncOut)
+def backfill_comedian(
+    comedian_id: int, batch: int = 100, _: User = Depends(admin_user), db: Session = Depends(get_db)
+):
+    comedian = _get(db, comedian_id)
+    try:
+        result = catalog.backfill_comedian(db, comedian, batch=min(max(batch, 1), 150))
+    except youtube.YouTubeError as exc:
+        raise HTTPException(status.HTTP_502_BAD_GATEWAY, str(exc))
+    return SyncOut(discovered=result.discovered, filtered=result.filtered, remaining=result.remaining)
+
+
 @router.get("/sketches", response_model=list[SketchOut])
 def list_sketches(
     comedian_id: int | None = None,

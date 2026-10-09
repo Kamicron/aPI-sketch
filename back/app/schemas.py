@@ -97,3 +97,4 @@ class SketchOut(BaseModel):
 class SyncOut(BaseModel):
     discovered: int
     filtered: int
+    remaining: int = 0

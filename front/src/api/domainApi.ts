@@ -26,6 +26,7 @@ export const catalogApi = {
     api<Comedian>(`/api/comedians/${id}`, { method: 'PATCH', body: JSON.stringify(body) }),
   deleteComedian: (id: number) => api<void>(`/api/comedians/${id}`, { method: 'DELETE' }),
   sync: (id: number) => api<SyncResult>(`/api/comedians/${id}/sync`, { method: 'POST' }),
+  backfill: (id: number) => api<SyncResult>(`/api/comedians/${id}/backfill?batch=100`, { method: 'POST' }),
   sketches: (comedianId?: number, limit = 100) =>
     api<Sketch[]>(`/api/sketches?limit=${limit}${comedianId ? `&comedian_id=${comedianId}` : ''}`),
 }

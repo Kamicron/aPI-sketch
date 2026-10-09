@@ -68,6 +68,26 @@ export default function ComediansPage() {
       await Promise.all([loadComedians(), loadSketches()])
     })
 
+  const backfill = (c: Comedian) =>
+    run(c.id, async () => {
+      // Lots de 100 enchaînés jusqu'à épuisement (chaque appel reste sous le délai nginx).
+      let imported = 0
+      for (;;) {
+        const r = await catalogApi.backfill(c.id)
+        imported += r.discovered
+        await Promise.all([loadComedians(), loadSketches()])
+        if (r.remaining === 0) {
+          setInfo(`${c.name} : ${imported} sketch(s) importé(s). L'historique est complet.`)
+          break
+        }
+        if (r.discovered === 0) {
+          setInfo(`${c.name} : import interrompu (${imported} importé(s), encore ${r.remaining}). Réessaie plus tard.`)
+          break
+        }
+        setInfo(`${c.name} : ${imported} importé(s), encore ${r.remaining} à venir… (ne ferme pas la page)`)
+      }
+    })
+
   const toggle = (c: Comedian) =>
     run(c.id, async () => {
       await catalogApi.updateComedian(c.id, { subscribed: !c.subscribed })
@@ -140,6 +160,9 @@ export default function ComediansPage() {
               <div className="row-actions">
                 <button className="btn-ghost" disabled={busy === c.id} onClick={() => sync(c)}>
                   {busy === c.id ? 'Synchro…' : 'Synchroniser'}
+                </button>
+                <button className="btn-ghost" disabled={busy === c.id} onClick={() => backfill(c)}>
+                  Importer l'historique
                 </button>
                 <button className="btn-ghost" disabled={busy === c.id} onClick={() => toggle(c)}>
                   {c.subscribed ? 'Mettre en pause' : 'Reprendre'}
