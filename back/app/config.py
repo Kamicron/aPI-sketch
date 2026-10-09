@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from urllib.parse import quote
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -29,9 +30,12 @@ class Settings(BaseSettings):
     def sqlalchemy_url(self) -> str:
         if self.database_url:
             return self.database_url
+        # Identifiants encodés : un @ : / # dans le mot de passe casserait l'URL.
+        user = quote(self.db_username, safe="")
+        password = quote(self.db_password, safe="")
         return (
-            f"mysql+pymysql://{self.db_username}:{self.db_password}"
-            f"@{self.db_host}:{self.db_port}/{self.db_name}?charset=utf8mb4"
+            f"mysql+pymysql://{user}:{password}"
+            f"@{self.db_host}:{self.db_port}/{quote(self.db_name, safe='')}?charset=utf8mb4"
         )
 
     @property
