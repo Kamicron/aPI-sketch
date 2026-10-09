@@ -2,6 +2,7 @@
 
     python -m app.cli create-admin <email> <username>   # demande le mot de passe
     python -m app.cli invite [email]                    # affiche un code d'invitation
+    python -m app.cli sync                              # synchronise les humoristes suivis (cron / timer)
 """
 
 import getpass
@@ -42,6 +43,15 @@ def invite(email: str | None) -> None:
         print(inv.code)
 
 
+def sync() -> None:
+    from app.services import catalog
+
+    with SessionLocal() as db:
+        for name, res in catalog.sync_all(db).items():
+            detail = res if isinstance(res, str) else f"{res.discovered} nouveau(x), {res.filtered} filtré(s)"
+            print(f"{name} : {detail}")
+
+
 def main(argv: list[str]) -> None:
     match argv:
         case ["create-admin", email, username]:
@@ -50,6 +60,8 @@ def main(argv: list[str]) -> None:
             invite(None)
         case ["invite", email]:
             invite(email)
+        case ["sync"]:
+            sync()
         case _:
             sys.exit(__doc__)
 

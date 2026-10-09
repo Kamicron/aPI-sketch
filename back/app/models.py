@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, String
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -52,3 +52,41 @@ class Invitation(Base):
         if self.expires_at <= utcnow():
             return "expired"
         return "pending"
+
+
+class Comedian(Base):
+    """Une chaîne YouTube suivie. `subscribed` : sa synchronisation périodique est active."""
+
+    __tablename__ = "comedians"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    name: Mapped[str] = mapped_column(String(120))
+    youtube_channel_id: Mapped[str] = mapped_column(String(32), unique=True)
+    channel_url: Mapped[str] = mapped_column(String(300))
+    subscribed: Mapped[bool] = mapped_column(Boolean, default=True)
+    # Filtre : seuls les sketchs dont la durée est dans [min, max] sont retenus.
+    min_duration_s: Mapped[int] = mapped_column(Integer, default=120)
+    max_duration_s: Mapped[int] = mapped_column(Integer, default=1800)
+    last_synced_at: Mapped[datetime | None] = mapped_column(DateTime)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    sketches: Mapped[list["Sketch"]] = relationship(back_populates="comedian", cascade="all, delete-orphan")
+
+
+class Sketch(Base):
+    __tablename__ = "sketches"
+    __table_args__ = (Index("ix_sketches_comedian_published", "comedian_id", "published_at"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    comedian_id: Mapped[int] = mapped_column(ForeignKey("comedians.id", ondelete="CASCADE"))
+    youtube_id: Mapped[str] = mapped_column(String(16), unique=True)
+    title: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str | None] = mapped_column(Text)
+    duration_s: Mapped[int | None] = mapped_column(Integer)
+    published_at: Mapped[datetime] = mapped_column(DateTime)
+    thumbnail_url: Mapped[str | None] = mapped_column(String(500))
+    # discovered | filtered (hors filtre de durée). Les états "gardé" arrivent avec le téléchargement.
+    status: Mapped[str] = mapped_column(String(16), default="discovered")
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=utcnow)
+
+    comedian: Mapped[Comedian] = relationship(back_populates="sketches")
