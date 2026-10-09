@@ -1,7 +1,7 @@
 # Déploiement — Optiplex
 
 Cible : `kamicron_admin@192.168.1.51`, dépôt cloné dans `/opt/apisketch`.
-Back : service systemd `apisketch-back` (uvicorn sur `127.0.0.1:8090`).
+Back : service systemd `apisketch-back` (uvicorn sur `127.0.0.1:8091`).
 Front : statique dans `/var/www/apisketch`. nginx sert les deux domaines.
 
 ## Première installation (une seule fois)

@@ -5,7 +5,7 @@
   name: "aPI-sketch"
   kind: http
   # /api/health renvoie 503 si MySQL est injoignable
-  url: "http://127.0.0.1:8090/api/health"
+  url: "http://127.0.0.1:8091/api/health"
   public_url: "https://api-sketch.pi-cto.top"
 
 # Sous `service_units:`

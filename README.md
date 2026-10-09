@@ -21,7 +21,7 @@ Le front et l'app Android reprennent la structure d'InsPI.
 | Domaine                       | Sert                                  |
 |-------------------------------|---------------------------------------|
 | `api-sketch.pi-cto.top`       | front (statique, nginx)               |
-| `api-sketch-back.pi-cto.top`  | API (nginx → uvicorn `127.0.0.1:8090`) |
+| `api-sketch-back.pi-cto.top`  | API (nginx → uvicorn `127.0.0.1:8091`) |
 
 ## Plan
 
@@ -46,11 +46,11 @@ python -m venv .venv
 cp .env.example .env                                  # puis renseigner DB_* et JWT_SECRET
 .venv/Scripts/alembic upgrade head
 .venv/Scripts/python -m app.cli create-admin moi@exemple.fr ludovic
-.venv/Scripts/uvicorn app.main:app --reload --port 8090
+.venv/Scripts/uvicorn app.main:app --reload --port 8091
 ```
 
 Sans MySQL local, `DATABASE_URL=sqlite:///./dev.db` dans `back/.env` suffit pour
-développer. Documentation interactive de l'API : http://localhost:8090/docs.
+développer. Documentation interactive de l'API : http://localhost:8091/docs.
 
 ```bash
 # Front

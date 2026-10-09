@@ -27,7 +27,7 @@
     },
     { "id": "setup-back", "group": "Setup", "label": "Back - venv + deps", "command": "python -m venv .venv; .\\.venv\\Scripts\\pip install -r requirements-dev.txt", "cwd": "back" },
     { "id": "setup-front", "group": "Setup", "label": "Front - npm ci", "command": "npm ci", "cwd": "front" },
-    { "id": "dev-back", "group": "Local (dev)", "label": "Back - uvicorn --reload", "command": ".\\.venv\\Scripts\\uvicorn app.main:app --reload --port 8090", "cwd": "back", "longRunning": true },
+    { "id": "dev-back", "group": "Local (dev)", "label": "Back - uvicorn --reload", "command": ".\\.venv\\Scripts\\uvicorn app.main:app --reload --port 8091", "cwd": "back", "longRunning": true },
     { "id": "dev-front", "group": "Local (dev)", "label": "Front - Vite dev", "command": "npm run dev", "cwd": "front", "longRunning": true },
     { "id": "migrate", "group": "Local (dev)", "label": "Back - migrations (alembic upgrade)", "command": ".\\.venv\\Scripts\\alembic upgrade head", "cwd": "back" },
     { "id": "test-back", "group": "Local (dev)", "label": "Back - tests", "command": ".\\.venv\\Scripts\\python -m pytest -q", "cwd": "back" },
