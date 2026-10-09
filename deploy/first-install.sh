@@ -99,7 +99,7 @@ curl -fsS "http://127.0.0.1:$PORT/api/health" && echo
 
 cat <<EOF
 
-\033[32mInstallation terminée.\033[0m Restent deux étapes manuelles :
+Installation terminée. Restent deux étapes manuelles :
 
 1. HTTPS (les deux domaines doivent déjà pointer vers l'Optiplex) :
      sudo certbot --nginx -d $FRONT_HOST -d $API_HOST
