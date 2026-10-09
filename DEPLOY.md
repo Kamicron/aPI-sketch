@@ -6,6 +6,9 @@ Front : statique dans `/var/www/apisketch`. nginx sert les deux domaines.
 
 ## Première installation (une seule fois)
 
+Raccourci : `bash deploy/first-install.sh` sur l'Optiplex fait les étapes 3, 4 et 5 (hors
+HTTPS) ; la base (étape 2) doit déjà exister. Le détail ci-dessous reste la référence.
+
 ### 1. DNS
 
 `api-sketch.pi-cto.top` et `api-sketch-back.pi-cto.top` doivent pointer vers la même IP

@@ -89,6 +89,11 @@ case "$TARGET" in
     *) echo "usage: bash deploy.sh [all|back|front]"; exit 1 ;;
 esac
 
+if [ -n "${SKIP_VERIFY:-}" ]; then
+    echo "SKIP_VERIFY : vérification HTTP ignorée"
+    exit 0
+fi
+
 log "Vérification"
 code_front=$(curl -s -o /dev/null -w '%{http_code}' "https://$FRONT_HOST/")
 echo "  front  $code_front   https://$FRONT_HOST/"
