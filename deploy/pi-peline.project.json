@@ -1,0 +1,36 @@
+{
+  "id": "api-sketch",
+  "name": "aPI-sketch",
+  "color": "#1ed760",
+  "localPath": "C:/Users/Utilisateur/Documents/Ludovic/aPI-sketch",
+  "shell": "powershell",
+  "remote": { "host": "kamicron_admin@192.168.1.51", "path": "/opt/apisketch" },
+  "links": [
+    { "label": "Site", "url": "https://api-sketch.pi-cto.top" },
+    { "label": "API (health)", "url": "https://api-sketch-back.pi-cto.top/api/health" },
+    { "label": "API (docs)", "url": "https://api-sketch-back.pi-cto.top/docs" }
+  ],
+  "actions": [
+    { "id": "deploy-all", "group": "Déploiement (Optiplex)", "label": "Déployer back + front", "command": ".\\deploy.ps1 all", "confirm": true },
+    { "id": "deploy-back", "group": "Déploiement (Optiplex)", "label": "Déployer back seul", "command": ".\\deploy.ps1 back", "confirm": true },
+    { "id": "deploy-front", "group": "Déploiement (Optiplex)", "label": "Déployer front seul", "command": ".\\deploy.ps1 front", "confirm": true },
+    {
+      "id": "deploy-nopush", "group": "Déploiement (Optiplex)", "label": "Déployer sans git push",
+      "command": ".\\deploy.ps1 {input:target} -NoPush", "confirm": true,
+      "inputs": [{ "key": "target", "label": "Cible", "type": "select", "options": ["all", "back", "front"], "default": "all" }]
+    },
+    { "id": "logs-back", "group": "Serveur", "label": "Logs back (journalctl -f)", "command": "ssh -t {remoteHost} \"sudo journalctl -u apisketch-back -f\"", "longRunning": true },
+    {
+      "id": "invite", "group": "Serveur", "label": "Créer une invitation",
+      "command": "ssh -t {remoteHost} \"cd {remotePath} && bash deploy/manage.sh invite {input:email}\"",
+      "inputs": [{ "key": "email", "label": "Email (optionnel)", "type": "text", "placeholder": "ami@exemple.fr" }]
+    },
+    { "id": "setup-back", "group": "Setup", "label": "Back - venv + deps", "command": "python -m venv .venv; .\\.venv\\Scripts\\pip install -r requirements-dev.txt", "cwd": "back" },
+    { "id": "setup-front", "group": "Setup", "label": "Front - npm ci", "command": "npm ci", "cwd": "front" },
+    { "id": "dev-back", "group": "Local (dev)", "label": "Back - uvicorn --reload", "command": ".\\.venv\\Scripts\\uvicorn app.main:app --reload --port 8090", "cwd": "back", "longRunning": true },
+    { "id": "dev-front", "group": "Local (dev)", "label": "Front - Vite dev", "command": "npm run dev", "cwd": "front", "longRunning": true },
+    { "id": "migrate", "group": "Local (dev)", "label": "Back - migrations (alembic upgrade)", "command": ".\\.venv\\Scripts\\alembic upgrade head", "cwd": "back" },
+    { "id": "test-back", "group": "Local (dev)", "label": "Back - tests", "command": ".\\.venv\\Scripts\\python -m pytest -q", "cwd": "back" },
+    { "id": "build-front", "group": "Local (dev)", "label": "Front - build", "command": "npm run build", "cwd": "front" }
+  ]
+}

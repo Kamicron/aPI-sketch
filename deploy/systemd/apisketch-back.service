@@ -1,0 +1,17 @@
+[Unit]
+Description=aPI-sketch backend (FastAPI)
+After=network.target mysql.service mariadb.service
+
+[Service]
+User=apisketch-svc
+Group=apisketch-svc
+EnvironmentFile=/etc/apisketch/apisketch.env
+WorkingDirectory=/opt/apisketch/back
+# Migrations Alembic appliquées à chaque démarrage (no-op si la base est à jour).
+ExecStartPre=/opt/apisketch/back/.venv/bin/alembic upgrade head
+ExecStart=/bin/sh -c 'exec /opt/apisketch/back/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port $${SERVER_PORT:-8090} --proxy-headers'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

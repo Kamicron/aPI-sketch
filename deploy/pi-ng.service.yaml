@@ -1,0 +1,15 @@
+# À ajouter dans /opt/optiplex-monitor/agent/config.yaml (PI-ng) sur l'Optiplex.
+
+# Sous `services:`
+- id: apisketch
+  name: "aPI-sketch"
+  kind: http
+  # /api/health renvoie 503 si MySQL est injoignable
+  url: "http://127.0.0.1:8090/api/health"
+  public_url: "https://api-sketch.pi-cto.top"
+
+# Sous `service_units:`
+#   apisketch: "apisketch-back.service"
+
+# Et dans /etc/sudoers.d/optiplex-monitor, ajouter :
+#   /usr/bin/systemctl restart apisketch-back.service, /usr/bin/systemctl stop apisketch-back.service

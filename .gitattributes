@@ -1,0 +1,4 @@
+* text=auto
+*.sh text eol=lf
+deploy/nginx/* text eol=lf
+deploy/systemd/* text eol=lf

@@ -1,0 +1,37 @@
+# Secrets
+.env
+*.env
+!.env.example
+!.env.production
+
+# Backend
+back/.venv/
+**/__pycache__/
+*.pyc
+back/media/
+back/*.db
+.pytest_cache/
+
+# Frontend
+front/node_modules/
+front/dist/
+
+# Android
+android/.gradle/
+android/app/build/
+android/app/release/
+android/build/
+android/.idea/
+android/local.properties
+android/keystore.properties
+android/*.jks
+android/play-service-account.json
+*.apk
+*.aab
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
